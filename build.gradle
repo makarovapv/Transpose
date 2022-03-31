@@ -1,0 +1,33 @@
+plugins {
+    id 'org.jetbrains.kotlin.jvm' version '1.6.10'
+    id 'com.github.johnrengelman.shadow' version '7.1.2'
+    id 'application'
+}
+
+group 'org.example'
+version '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies { // зависимость
+    testImplementation "org.junit.jupiter:junit-jupiter:5.8.2"
+    testImplementation platform("org.junit:junit-bom:5.8.2")
+    implementation "org.jetbrains.kotlin:kotlin-stdlib"
+    implementation "org.jetbrains.kotlinx:kotlinx-cli:0.3.4"
+}
+
+test {
+    useJUnitPlatform()
+}
+
+application {
+    mainClassName("TransposeKt")
+}
+
+shadowJar {
+    archiveBaseName.set('transpose')
+    archiveClassifier.set('')
+    archiveVersion.set('')
+}
