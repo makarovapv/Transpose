@@ -1,6 +1,7 @@
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.Assertions.*
 import java.io.File
+import kotlin.IllegalStateException as IllegalStateException
 
 class TestTranspose {
     @Test
@@ -65,12 +66,24 @@ class TestTranspose {
     @Test
     fun transposeAndRight() {
         val file = File("testFile4.txt")
-        file.writeText("ABC   B CDEF\nDPOIK EGHJLFSSDFHSDGHSD")
+        file.writeText("ABC   B CDEF\nDPOIK EGHJL")
         val outputFile = File("outputFile4.txt")
-        val expectedOutput = "  ABC DPOIK\n    B EGHJLFSSDFHSDGHSD\n CDEF"
+        val expectedOutput = "  ABC DPOIK\n    B EGHJL\n CDEF"
         val transpose = Transpose(arrayOf("-a", "5", "-r", "-o", "outputFile4.txt", "testFile4.txt"))
         transpose.start()
         assertEquals(expectedOutput, outputFile.readText())
+        file.delete()
+        outputFile.delete()
+    }
+
+    @Test
+    fun transposeWithWordExceedingLimit() {
+        val file = File("testFile4.txt")
+        file.writeText("ABC   B CDEF\nDPOIK EGHJLF")
+        val outputFile = File("outputFile4.txt")
+        val transpose = Transpose(arrayOf("-a", "5", "-o", "outputFile4.txt", "testFile4.txt"))
+        val exception = assertThrows(IllegalStateException::class.java) { transpose.start() }
+        assertEquals("Word length exceeds 5", exception.message)
         file.delete()
         outputFile.delete()
     }

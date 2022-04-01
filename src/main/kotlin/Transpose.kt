@@ -18,6 +18,7 @@ class Transpose(args: Array<String>) {
             "следует выравнивать по правой границе. Если данный флаг не указан, слово выравнивается по левой границе.").default(false)
     private val output = StringBuilder() // запись для start
     private val lines: List<String>
+    private var numProvided: Boolean = true
 
     init {
         parser.parse(args)
@@ -29,12 +30,13 @@ class Transpose(args: Array<String>) {
 //        println("right -> $right")
 
         if (num == null) {
-            num = if (trim || right) {
-                10
+            if (trim || right) {
+                num = 10
             //  В случае, если флаг -а отсутствует, но присутствуют флаги -t или -r,
             //  следует выравнивать текст так, будто указан флаг “-а 10”.
             } else {
-                1
+                num = 1
+                numProvided = false
             }
         }
 
@@ -69,7 +71,6 @@ class Transpose(args: Array<String>) {
 
             var countRows = 0
             l.forEach { word ->
-
                 countRows += 1
                 rows.add(countRows)
                 columns.add(countColumns)
@@ -93,9 +94,7 @@ class Transpose(args: Array<String>) {
 
                 if (w.length == num) {
                     matrix[Pair(countColumns, countRows)] = w
-                }
-
-                else if ((word.length > num!!)) {
+                } else if (word.length > num!!) {
                     val str = StringBuilder("")
                     var k = 0
                     val q = w.split("").toMutableList()
@@ -108,13 +107,16 @@ class Transpose(args: Array<String>) {
                             }
                         }
                     } else { // trim = false
-                        str.append(w)
+                        if (numProvided) {
+                            throw IllegalStateException("Word length exceeds $num")
+                        } else {
+                            str.append(w)
+                        }
                     }
-                        matrix[Pair(countColumns, countRows)] = str.toString()
+                    matrix[Pair(countColumns, countRows)] = str.toString()
                 }
             }
             countColumns += 1
-
         }
 
         matrix.forEach { (key, value) ->
